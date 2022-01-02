@@ -11,29 +11,29 @@ import { LanguageModel } from '../models/language.model';
 export class LanguagesService {
   constructor(protected http: HttpClient) {}
 
-  public getLanguages(): Observable<LanguageModel[]> {
+  getLanguages(): Observable<LanguageModel[]> {
     return this.http.get<LanguageModel[]>(`${env.apiUrl}/languages`);
   }
 
-  public getLanguageByGuid(guid: string): Observable<LanguageModel[]> {
+  getLanguageByGuid(guid: string): Observable<LanguageModel[]> {
     return this.http.get<LanguageModel[]>(`${env.apiUrl}/languages/${guid}`);
   }
 
-  public createLanguage(language: LanguageModel): Observable<LanguageModel[]> {
+  createLanguage(language: LanguageModel): Observable<LanguageModel[]> {
     const { value } = language;
     return this.http.post<LanguageModel[]>(`${env.apiUrl}/languages`, {
       value
     });
   }
 
-  public updateLanguage(language: LanguageModel): Observable<void> {
+  updateLanguage(language: LanguageModel): Observable<void> {
     const { guid, value } = language;
     return this.http.post<void>(`${env.apiUrl}/languages/${guid}`, {
       value
     });
   }
 
-  public deleteLanguage(guid: string): Observable<void> {
+  deleteLanguage(guid: string): Observable<void> {
     return this.http.delete<void>(`${env.apiUrl}/languages/${guid}`);
   }
 }

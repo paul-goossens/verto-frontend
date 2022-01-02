@@ -11,19 +11,19 @@ import { TranslationModel } from '../models/translation.model';
 export class TranslationsService {
   constructor(protected http: HttpClient) {}
 
-  public getTranslations(languageGuid: string): Observable<TranslationModel[]> {
+  getTranslations(languageGuid: string): Observable<TranslationModel[]> {
     return this.http.get<TranslationModel[]>(
       `${env.apiUrl}/translations/${languageGuid}/language`
     );
   }
 
-  public getTranslationByGuid(guid: string): Observable<TranslationModel[]> {
+  getTranslationByGuid(guid: string): Observable<TranslationModel[]> {
     return this.http.get<TranslationModel[]>(
       `${env.apiUrl}/translations/${guid}`
     );
   }
 
-  public createTranslation(
+  createTranslation(
     translation: TranslationModel
   ): Observable<TranslationModel[]> {
     const { key, value, isGroup } = translation;
@@ -34,7 +34,7 @@ export class TranslationsService {
     });
   }
 
-  public updateTranslation(translation: TranslationModel): Observable<void> {
+  updateTranslation(translation: TranslationModel): Observable<void> {
     const { guid, key, value, isGroup } = translation;
     return this.http.post<void>(`${env.apiUrl}/translations/${guid}`, {
       key,
@@ -42,7 +42,7 @@ export class TranslationsService {
     });
   }
 
-  public deleteTranslation(guid: string): Observable<void> {
+  deleteTranslation(guid: string): Observable<void> {
     return this.http.delete<void>(`${env.apiUrl}/translations/${guid}`);
   }
 }
