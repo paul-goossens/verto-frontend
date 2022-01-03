@@ -1,8 +1,8 @@
 module.exports = {
-  mode: "jit",
+  mode: 'jit',
   purge: {
     enabled: true,
-    content: ["./src/**/*.{html,ts}"],
+    content: ['./src/**/*.{html,ts}'],
   },
   darkMode: false, // or 'media' or 'class'
   theme: {
@@ -11,5 +11,5 @@ module.exports = {
   variants: {
     extend: {},
   },
-  plugins: [],
+  plugins: [require('daisyui')],
 };
