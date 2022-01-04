@@ -17,18 +17,22 @@ export interface Data {
 })
 export class IndexComponent implements OnInit {
   data: Data[];
-  selectedIndex: number;
+  selectedLanguage: number;
 
   constructor(
     private languageService: LanguagesService,
     private translationService: TranslationsService
   ) {
     this.data = [];
-    this.selectedIndex = 0;
+    this.selectedLanguage = 0;
   }
 
   ngOnInit(): void {
     this.initLanguages();
+  }
+
+  onLanguage(index: number): void {
+    this.selectedLanguage = index;
   }
 
   private initLanguages(): void {

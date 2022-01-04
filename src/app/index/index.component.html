@@ -4,7 +4,8 @@
       <ng-container *ngFor="let item of data; let index = index">
         <a
           class="tab tab-lg tab-lifted"
-          [class.tab-active]="index === selectedIndex"
+          [class.tab-active]="index === selectedLanguage"
+          (click)="onLanguage(index)"
         >
           {{ item.language.value }}
         </a>
@@ -16,11 +17,13 @@
     <div class="pt-8"></div>
 
     <ng-container *ngFor="let item of data; let index = index">
-      <div class="card card-bordered">
-        <div class="card-body">
-          <pre>{{ item.translations | json }}</pre>
+      <ng-container *ngIf="index === selectedLanguage">
+        <div class="card card-bordered">
+          <div class="card-body">
+            <pre>{{ item.translations | json }}</pre>
+          </div>
         </div>
-      </div>
+      </ng-container>
     </ng-container>
   </div>
 </ng-container>
