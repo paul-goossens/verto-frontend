@@ -5,11 +5,6 @@ import { TranslationModel } from '../models/translation.model';
 import { LanguagesService } from '../services/languages.service';
 import { TranslationsService } from '../services/translations.service';
 
-export interface Data {
-  language: LanguageModel;
-  translations: TranslationModel[];
-}
-
 export interface RowValues {
   guid: string;
   languageGuid: string;
