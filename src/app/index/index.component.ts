@@ -10,29 +10,37 @@ export interface Data {
   translations: TranslationModel[];
 }
 
+export interface RowValues {
+  guid: string;
+  languageGuid: string;
+  value: string;
+}
+
+export interface Row {
+  key: string;
+  values: RowValues[];
+  isGroup: boolean;
+}
+
 @Component({
   selector: 'app-index',
   templateUrl: './index.component.html',
   styleUrls: ['./index.component.css'],
 })
 export class IndexComponent implements OnInit {
-  data: Data[];
-  selectedLanguage: number;
+  languages: LanguageModel[];
+  table: Row[];
 
   constructor(
     private languageService: LanguagesService,
     private translationService: TranslationsService
   ) {
-    this.data = [];
-    this.selectedLanguage = 0;
+    this.languages = [];
+    this.table = [];
   }
 
   ngOnInit(): void {
     this.initLanguages();
-  }
-
-  onLanguage(index: number): void {
-    this.selectedLanguage = index;
   }
 
   private initLanguages(): void {
@@ -40,7 +48,8 @@ export class IndexComponent implements OnInit {
       .getLanguages()
       .pipe(
         tap(languages => {
-          languages.forEach(language => {
+          this.languages = languages;
+          this.languages.forEach(language => {
             this.initTranslations(language);
           });
         })
@@ -49,20 +58,50 @@ export class IndexComponent implements OnInit {
   }
 
   private initTranslations(language: LanguageModel) {
+    const { guid } = language;
     this.translationService
-      .getTranslations(language.guid)
+      .getTranslations(guid)
       .pipe(
         tap(translations => {
-          this.initData(language, translations);
+          const table = translations.map(translation => {
+            const { guid, key, value, isGroup, languageGuid } = translation;
+
+            const values = [
+              {
+                guid,
+                languageGuid,
+                value,
+              },
+            ];
+
+            return {
+              key,
+              isGroup,
+              values,
+            };
+          });
+
+          if (this.table.length > 0) {
+            this.table = this.mergeTables(this.table, table);
+          } else {
+            this.table = table;
+          }
         })
       )
       .subscribe();
   }
 
-  private initData(language: LanguageModel, translations: TranslationModel[]) {
-    this.data.push({
-      language,
-      translations,
-    });
+  private mergeTables(array: Row[], newArray: Row[]): Row[] {
+    for (const newItem of newArray) {
+      const index = array.findIndex(item => item.key === newItem.key);
+
+      if (index === -1) {
+        array.push(newItem);
+      } else {
+        array[index].values.push(newItem.values[0]);
+      }
+    }
+
+    return array;
   }
 }

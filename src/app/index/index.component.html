@@ -1,29 +1,5 @@
-<ng-container *ngIf="data?.length">
-  <div class="p-8">
-    <div class="tabs">
-      <ng-container *ngFor="let item of data; let index = index">
-        <a
-          class="tab tab-lg tab-lifted"
-          [class.tab-active]="index === selectedLanguage"
-          (click)="onLanguage(index)"
-        >
-          {{ item.language.value }}
-        </a>
-      </ng-container>
-      <a class="tab tab-lg tab-lifted">Add language</a>
-      <div class="flex-1 cursor-default tab tab-lifted"></div>
-    </div>
-
-    <div class="pt-8"></div>
-
-    <ng-container *ngFor="let item of data; let index = index">
-      <ng-container *ngIf="index === selectedLanguage">
-        <div class="card card-bordered">
-          <div class="card-body">
-            <pre>{{ item.translations | json }}</pre>
-          </div>
-        </div>
-      </ng-container>
-    </ng-container>
+<div class="card card-bordered">
+  <div class="card-body">
+    <pre>{{ table | json }}</pre>
   </div>
-</ng-container>
+</div>
