@@ -56,7 +56,23 @@ export class IndexComponent implements OnInit {
     );
   }
 
-  private mapToTable(concurrentTranslations: TranslationModel[][]) {
+  private translations$(
+    languages: LanguageModel[]
+  ): Observable<TranslationModel[][]> {
+    const subscriptions: Observable<unknown>[] = [];
+
+    for (const language of languages) {
+      subscriptions.push(
+        this.translationService.getTranslations(language.guid)
+      );
+    }
+
+    return subscriptions.length
+      ? <Observable<TranslationModel[][]>>forkJoin(subscriptions)
+      : of([]);
+  }
+
+  private mapToTable(concurrentTranslations: TranslationModel[][]): Row[] {
     let table: Row[] = [];
 
     for (const [index, translations] of concurrentTranslations.entries()) {
@@ -85,25 +101,7 @@ export class IndexComponent implements OnInit {
       }
     }
 
-    console.log(table);
-
     return table;
-  }
-
-  private translations$(
-    languages: LanguageModel[]
-  ): Observable<TranslationModel[][]> {
-    const subscriptions: Observable<unknown>[] = [];
-
-    for (const language of languages) {
-      subscriptions.push(
-        this.translationService.getTranslations(language.guid)
-      );
-    }
-
-    return subscriptions.length
-      ? <Observable<TranslationModel[][]>>forkJoin(subscriptions)
-      : of([]);
   }
 
   private mergeTables(array: Row[], newArray: Row[]): Row[] {
