@@ -1,5 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { tap } from 'rxjs';
+import {
+  forkJoin,
+  map,
+  mergeMap,
+  Observable,
+  of,
+  Subject,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { LanguageModel } from '../models/language.model';
 import { TranslationModel } from '../models/translation.model';
 import { LanguagesService } from '../services/languages.service';
@@ -23,67 +32,78 @@ export interface Row {
   styleUrls: ['./index.component.css'],
 })
 export class IndexComponent implements OnInit {
-  languages: LanguageModel[];
   table: Row[];
+
+  private triggerInit$ = new Subject<void>();
 
   constructor(
     private languageService: LanguagesService,
     private translationService: TranslationsService
   ) {
-    this.languages = [];
     this.table = [];
   }
 
   ngOnInit(): void {
-    this.initLanguages();
+    this.init$().subscribe(table => (this.table = table));
+    this.triggerInit$.next();
   }
 
-  private initLanguages(): void {
-    this.languageService
-      .getLanguages()
-      .pipe(
-        tap(languages => {
-          this.languages = languages;
-          this.languages.forEach(language => {
-            this.initTranslations(language);
-          });
-        })
-      )
-      .subscribe();
+  private init$(): Observable<Row[]> {
+    return this.triggerInit$.pipe(
+      switchMap(() => this.languageService.getLanguages()),
+      switchMap(languages => this.translations$(languages)),
+      map(concurrentTranslations => this.mapToTable(concurrentTranslations))
+    );
   }
 
-  private initTranslations(language: LanguageModel) {
-    const { guid } = language;
-    this.translationService
-      .getTranslations(guid)
-      .pipe(
-        tap(translations => {
-          const table = translations.map(translation => {
-            const { guid, key, value, isGroup, languageGuid } = translation;
+  private mapToTable(concurrentTranslations: TranslationModel[][]) {
+    let table: Row[] = [];
 
-            const values = [
-              {
-                guid,
-                languageGuid,
-                value,
-              },
-            ];
+    for (const [index, translations] of concurrentTranslations.entries()) {
+      const newTable = translations.map(translation => {
+        const { guid, key, value, isGroup, languageGuid } = translation;
 
-            return {
-              key,
-              isGroup,
-              values,
-            };
-          });
+        const values = [
+          {
+            guid,
+            languageGuid,
+            value,
+          },
+        ];
 
-          if (this.table.length > 0) {
-            this.table = this.mergeTables(this.table, table);
-          } else {
-            this.table = table;
-          }
-        })
-      )
-      .subscribe();
+        return {
+          key,
+          isGroup,
+          values,
+        };
+      });
+
+      if (index === 0) {
+        table = newTable;
+      } else {
+        table = this.mergeTables(table, newTable);
+      }
+    }
+
+    console.log(table);
+
+    return table;
+  }
+
+  private translations$(
+    languages: LanguageModel[]
+  ): Observable<TranslationModel[][]> {
+    const subscriptions: Observable<unknown>[] = [];
+
+    for (const language of languages) {
+      subscriptions.push(
+        this.translationService.getTranslations(language.guid)
+      );
+    }
+
+    return subscriptions.length
+      ? <Observable<TranslationModel[][]>>forkJoin(subscriptions)
+      : of([]);
   }
 
   private mergeTables(array: Row[], newArray: Row[]): Row[] {
