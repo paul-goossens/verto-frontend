@@ -79,18 +79,16 @@ export class IndexComponent implements OnInit {
       const newTable = translations.map(translation => {
         const { guid, key, value, isGroup, languageGuid } = translation;
 
-        const values = [
-          {
-            guid,
-            languageGuid,
-            value,
-          },
-        ];
-
         return {
           key,
           isGroup,
-          values,
+          values: [
+            {
+              guid,
+              languageGuid,
+              value,
+            },
+          ],
         };
       });
 
